@@ -1,3 +1,6 @@
+// nosleep
+var noSleep = new NoSleep();
+
 // peer connection
 var pc = null;
 var dc = null, dcInterval = null;
@@ -59,18 +62,23 @@ function negotiate() {
     });
 }
 
-function performRecvText(str) {
-    htmlStr = document.getElementById('list').innerHTML
-    listItemHtmlStr = "<div>" + str + "</div>\n";
-    htmlStr += listItemHtmlStr;
-    document.getElementById('list').innerHTML = htmlStr; 
+function performRecvText(str, id) {
+    var listDiv = document.getElementById("list");
+    
+    listItemHtmlStr = "<div class='txt"+String(id%4)+"'>" + str + "</div>\n";
+    listDiv.innerHTML += listItemHtmlStr;
+    listDiv.scrollTop = listDiv.scrollHeight;
+
+    document.getElementById('partial'+String(id%4)).innerText = ""
 }
 
-function performRecvPartial(str) {
-    document.getElementById('partial').innerText = str
+function performRecvPartial(str, id) {
+    document.getElementById('partial'+String(id%4)).innerText = str
 }
 
 function start() {
+    noSleep.enable();
+
     btn_show_stop();
     statusField.innerText = 'Connecting...';
     var config = {
@@ -94,9 +102,9 @@ function start() {
         if(evt.data !== undefined) {
             getData =JSON.parse(evt.data)
             if(getData.text !== undefined) {
-                performRecvText(getData.text)
+                performRecvText(getData.text, getData.id)
             } else if (getData.partial !== undefined) {
-                performRecvPartial(getData.partial)
+                performRecvPartial(getData.partial, getData.id)
             }
             console.log(getData);
         }

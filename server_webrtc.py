@@ -27,19 +27,26 @@ vosk_cert_file = os.environ.get('VOSK_CERT_FILE', None)
 model = Model(vosk_model_path)
 pool = concurrent.futures.ThreadPoolExecutor((os.cpu_count() or 1))
 
+allchannels = []
+allIds = 0
 
 def process_chunk(rec, message):
     if rec.AcceptWaveform(message):
         o = json.loads(rec.Result())
-        if 'text' in o.keys():
-            return '{"text":"' +o['text']+ '"}'
-        return rec.Result()
+        if 'text' in o.keys() and o['text']:
+            return o
     else:
-        return rec.PartialResult()
-
+        o = json.loads(rec.PartialResult())
+        if 'partial' in o.keys() and o['partial']:
+            return o
+    return None
 
 class KaldiTask:
     def __init__(self, user_connection):
+        global allIds
+        self.__id = allIds
+        allIds += 1
+        
         self.__resampler = AudioResampler(format='s16', layout='mono', rate=48000)
         self.__pc = user_connection
         self.__audio_task = None
@@ -76,10 +83,26 @@ class KaldiTask:
             if len(dataframes) > max_frames_len:
                 wave_bytes = bytes(dataframes)
                 response = await self.loop.run_in_executor(pool, process_chunk, self.__recognizer, wave_bytes)
+                
                 # print(response)
-                self.__channel.send(response)
-                await self.__channel._RTCDataChannel__transport._data_channel_flush()
-                await self.__channel._RTCDataChannel__transport._transmit()
+                if response:
+                    
+                    response['id'] = self.__id
+                    resJson = json.dumps(response)
+                    
+                    if self.__channel:
+                        self.__channel.send(resJson)
+                        await self.__channel._RTCDataChannel__transport._data_channel_flush()
+                        await self.__channel._RTCDataChannel__transport._transmit()
+                    
+                    for chan in allchannels[:]:
+                        try:
+                            chan.send(resJson)
+                            await chan._RTCDataChannel__transport._data_channel_flush()
+                            await chan._RTCDataChannel__transport._transmit()
+                        except:
+                            allchannels.remove(chan)
+                
                 dataframes = bytearray(b"")
 
 
@@ -101,7 +124,9 @@ async def offer(request):
 
     @pc.on('datachannel')
     async def on_datachannel(channel):
-        await kaldi.set_text_channel(channel)
+        # await kaldi.set_text_channel(channel)
+        global allchannels
+        allchannels.append(channel)
         await kaldi.start()
 
     @pc.on('iceconnectionstatechange')

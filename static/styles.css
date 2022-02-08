@@ -1,10 +1,32 @@
 body {
     background-color: #333;
     color: #DDD;
+    font-size: 1.2em;
 }
 
-#partial {
-    color: #999;
+#list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+#partial0, .txt0 {
+    color: #DD3;
+}
+
+#partial1, .txt1 {
+    color: #3D3;
+}
+
+#partial2, .txt2 {
+    color: #66D;
+}
+
+#partial3, .txt3 {
+    color: #D66;
+}
+
+.partial {
+    opacity: 0.6;
 }
 
 #logo {
