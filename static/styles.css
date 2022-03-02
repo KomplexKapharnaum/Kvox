@@ -9,6 +9,7 @@ body {
     overflow-y: auto;
 }
 
+
 #partial0, .txt0 {
     color: #DD3;
 }
@@ -24,6 +25,26 @@ body {
 #partial3, .txt3 {
     color: #D66;
 }
+
+.line.deleted {
+    color: #666 !important;
+    font-size: 0.8em;
+}
+
+.line.important {
+    background-color: #666 !important;
+}
+
+.lineCtrl {
+    float: left;
+    margin-right: 15px;
+}
+
+.lineCtrl.deleted {
+    font-size: 0.1em;
+}
+
+
 
 .partial {
     opacity: 0.6;
@@ -46,6 +67,17 @@ body {
 }
 
 #status {
-    font-size: 9pt;
+    /* font-size: 9pt; */
     margin-left: 10px;
+}
+
+@media (min-width: 768px) {
+
+    body {
+        font-size: 1.7em;
+    }
+
+    .container {
+        max-width: 90%;
+    }
 }

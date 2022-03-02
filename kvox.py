@@ -21,8 +21,6 @@ ROOT = Path(__file__).parent
 vosk_interface = os.environ.get('VOSK_SERVER_INTERFACE', '0.0.0.0')
 vosk_port = int(os.environ.get('VOSK_SERVER_PORT', 2700))
 vosk_model_path = os.environ.get('VOSK_MODEL_PATH', 'model')
-vosk_sample_rate = float(os.environ.get('VOSK_SAMPLE_RATE', 8000))
-vosk_cert_file = os.environ.get('VOSK_CERT_FILE', None)
 
 model = Model(vosk_model_path)
 pool = concurrent.futures.ThreadPoolExecutor((os.cpu_count() or 1))
@@ -128,6 +126,10 @@ async def offer(request):
         global allchannels
         allchannels.append(channel)
         await kaldi.start()
+        
+        channel.send(json.dumps({}))
+        await channel._RTCDataChannel__transport._data_channel_flush()
+        await channel._RTCDataChannel__transport._transmit()
 
     @pc.on('iceconnectionstatechange')
     async def on_iceconnectionstatechange():
@@ -158,10 +160,9 @@ async def offer(request):
 
 if __name__ == '__main__':
 
-    ssl_context = ssl.SSLContext()
-    ssl_context.load_cert_chain('kvox.crt', 'kvox.key')
-    
-    #ssl_context = None
+    #ssl_context = ssl.SSLContext()
+    #ssl_context.load_cert_chain('kvox.crt', 'kvox.key')
+    ssl_context = None
 
     app = web.Application()
     app.router.add_post('/offer', offer)

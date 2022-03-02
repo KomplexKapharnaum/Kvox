@@ -7,8 +7,7 @@ Setup path to ./model
 The models can be download from here https://alphacephei.com/vosk/models   
 
 ### python environment   
-The sample can work in python 3.8 
-$ pip install aiortc aiohttp aiorpc vosk  
+$ pip install -r requirements.txt 
 If your system install aiortc failed, please install gcc in your environment and use pip to install aiortc again.  
 
 ### Create SSL cert
@@ -21,7 +20,7 @@ openssl req -newkey rsa:4096 \
             -keyout kvox.key
 
 ### Execution in local 
-$ python server_webrtc.py  
+$ python kvox.py  
 Open chrome browser with URL http://0.0.0.0:2700 and demo is there.   
 
 But if your environment cannot run ,then do the following steps. 

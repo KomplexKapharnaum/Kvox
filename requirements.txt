@@ -1,0 +1,4 @@
+vosk
+aiohttp
+aiortc
+aiorpc
